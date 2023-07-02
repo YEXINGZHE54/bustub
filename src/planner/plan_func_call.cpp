@@ -45,12 +45,16 @@ auto Planner::GetFuncCallFromFactory(const std::string &func_name, std::vector<A
   }
   const std::string upper("upper");
   const std::string lower("lower");
-  if (lower.compare(0, 5, func_name.data()) == 0) {
-    return std::make_shared<StringExpression>(args.at(0), StringExpressionType::Lower);
-  } else if (upper.compare(0, 5, func_name.data()) == 0) {
-    return std::make_shared<StringExpression>(args.at(0), StringExpressionType::Upper);
+  std::shared_ptr<StringExpression> res(nullptr);
+  auto data = func_name.data();
+  if (lower.compare(0, 5, data) == 0) {
+    res = std::make_shared<StringExpression>(args.at(0), StringExpressionType::Lower);
+  } else if (upper.compare(0, 5, data) == 0) {
+    res = std::make_shared<StringExpression>(args.at(0), StringExpressionType::Upper);
+  } else {
+    throw Exception(fmt::format("func call {} not supported in planner yet", func_name));
   }
-  throw Exception(fmt::format("func call {} not supported in planner yet", func_name));
+  return res;
 }
 
 }  // namespace bustub

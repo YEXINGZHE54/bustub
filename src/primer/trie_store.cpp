@@ -19,7 +19,9 @@ auto TrieStore::Get(std::string_view key) -> std::optional<ValueGuard<T>> {
   // step 2
   auto val = trie.Get<T>(key);
   // step 3
-  if (val == nullptr) return std::nullopt;
+  if (val == nullptr) {
+    return std::nullopt;
+  }
   return ValueGuard(trie, *val);
 }
 

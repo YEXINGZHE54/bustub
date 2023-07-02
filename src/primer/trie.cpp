@@ -11,7 +11,9 @@ auto Trie::Get(std::string_view key) const -> const T * {
   // nullptr. After you find the node, you should use `dynamic_cast` to cast it to `const TrieNodeWithValue<T> *`. If
   // dynamic_cast returns `nullptr`, it means the type of the value is mismatched, and you should return nullptr.
   // Otherwise, return the value.
-  if (root_ == nullptr) return nullptr;
+  if (root_ == nullptr) {
+    return nullptr;
+  }
   std::shared_ptr<const TrieNode> node(root_);
   std::map<char, std::shared_ptr<const TrieNode>>::const_iterator iter;
   for (auto c : key) {
@@ -21,11 +23,17 @@ auto Trie::Get(std::string_view key) const -> const T * {
     } else {
       node = nullptr;
     }
-    if (node == nullptr) return nullptr;
+    if (node == nullptr) {
+      return nullptr;
+    }
   }
-  if (!node->is_value_node_) return nullptr;
-  const TrieNodeWithValue<T> *ptr = dynamic_cast<const TrieNodeWithValue<T> *>(node.get());
-  if (ptr == nullptr) return nullptr;
+  if (!node->is_value_node_) {
+    return nullptr;
+  }
+  auto ptr = dynamic_cast<const TrieNodeWithValue<T> *>(node.get());
+  if (ptr == nullptr) {
+    return nullptr;
+  }
   return ptr->value_.get();
 }
 
@@ -94,10 +102,14 @@ auto Trie::Remove(std::string_view key) const -> Trie {
   // you should convert it to `TrieNode`. If a node doesn't have children any more, you should remove it.
 
   // Remove is same as Put, except update
-  if (root_ == nullptr) return Trie(root_);
+  if (root_ == nullptr) {
+    return Trie(root_);
+  }
   // special case: key is empty
   if (key.empty()) {
-    if (root_->children_.empty()) return Trie(nullptr);  // root is deleted leaf now
+    if (root_->children_.empty()) {
+      return Trie(nullptr);  // root is deleted leaf now
+    }
     auto root = std::make_shared<TrieNode>(root_->children_);
     return Trie(root);
   }
@@ -116,11 +128,15 @@ auto Trie::Remove(std::string_view key) const -> Trie {
     } else {
       next = nullptr;
     }
-    if (next == nullptr) return Trie(root_);
+    if (next == nullptr) {
+      return Trie(root_);
+    }
     node = next->Clone();
   }
   // now, we reach end of key, node is our target and it should has value
-  if (!node->is_value_node_) return Trie(root_);
+  if (!node->is_value_node_) {
+    return Trie(root_);
+  }
   // now node has no value
   if (node->children_.empty()) {
     // if node has no children(means it's deleted leaf now)
@@ -138,7 +154,9 @@ auto Trie::Remove(std::string_view key) const -> Trie {
     stack.push(std::make_shared<TrieNode>(node->children_));
   }
   // only one node, deleted
-  if (stack.empty()) return Trie(nullptr);
+  if (stack.empty()) {
+    return Trie(nullptr);
+  }
   std::stack<std::shared_ptr<TrieNode>> reversed;
   while (!stack.empty()) {
     reversed.push(stack.top());
@@ -152,9 +170,8 @@ auto Trie::Remove(std::string_view key) const -> Trie {
     if (reversed.empty()) {
       node->children_.erase(c);
       break;
-    } else {
-      node->children_[c] = reversed.top();
     }
+    node->children_[c] = reversed.top();
   }
   return Trie(root);
 }

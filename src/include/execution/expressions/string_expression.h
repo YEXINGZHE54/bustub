@@ -45,21 +45,21 @@ class StringExpression : public AbstractExpression {
   }
 
   auto Compute(const std::string &val) const -> std::string {
-    if (val.empty()) return val;
+    if (val.empty()) {
+      return val;
+    }
     std::string s;
     s.reserve(val.size());
     if (expr_type_ == StringExpressionType::Lower) {
-      for (auto iter = val.begin(); iter != val.end(); ++iter) {
-        s.push_back(std::tolower(*iter));
+      for (auto c : val) {
+        s.push_back(std::tolower(c));
       }
-      return s;
     } else if (expr_type_ == StringExpressionType::Upper) {
-      for (auto iter = val.begin(); iter != val.end(); ++iter) {
-        s.push_back(std::toupper(*iter));
+      for (auto c : val) {
+        s.push_back(std::toupper(c));
       }
-      return s;
     }
-    return {};
+    return s;
   }
 
   auto Evaluate(const Tuple *tuple, const Schema &schema) const -> Value override {
