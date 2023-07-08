@@ -191,6 +191,7 @@ class BufferPoolManager {
   /** List of free frames that don't have any pages on them. */
   std::list<frame_id_t> free_list_;
   /** This latch protects shared data structures. We recommend updating this comment to describe what it protects. */
+  /** If accessing page_table_, replacer, free_list, you should fetch latch first. */
   std::mutex latch_;
 
   /**
