@@ -141,6 +141,34 @@ class BPlusTree {
    */
   auto ToPrintableBPlusTree(page_id_t root_id) -> PrintableBPlusTree;
 
+  /**
+   *
+   * @param key The key to search for
+   * @return i, where k[i] <= key < k[i+1]
+   */
+  auto InternalKeyIndex(const InternalPage *page, const KeyType &key) const -> int;
+
+  /**
+   *
+   * @param key The key to search for
+   * @return i, where k[i] == key
+   */
+  auto LeafKeyIndex(const LeafPage *leaf, const KeyType &key) const -> int;
+
+  /**
+   * @param page page modified
+   * @param isInsert is insert or delete
+   * @return true if safe to unlock parent
+   */
+  auto IsSafeModify(const BPlusTreePage *page, bool isInsert) const -> bool;
+
+  void MoveLeafChild(LeafPage *fromPage, int fromPos, LeafPage *ToPage, int toPos, int size);
+  void MoveInternalChild(InternalPage *fromPage, int fromPos, InternalPage *ToPage, int toPos, int size);
+  void InsertIntoLeaf(LeafPage *leaf, int i, const KeyType &key, const ValueType &value);
+  void InsertIntoInternal(InternalPage *internal, int i, const KeyType &key, const page_id_t value);
+  auto SplitLeaf(LeafPage *leaf) -> page_id_t;
+  auto SplitInternal(InternalPage *internal) -> page_id_t;
+
   // member variable
   std::string index_name_;
   BufferPoolManager *bpm_;

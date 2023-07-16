@@ -31,26 +31,65 @@ BasicPageGuard::~BasicPageGuard() {
   }
 };  // NOLINT
 
+ReadPageGuard::ReadPageGuard(BufferPoolManager *bpm, Page *page) : guard_(bpm, page) {
+  if (page != nullptr) {
+    page->RLatch();
+  }
+}
+
 ReadPageGuard::ReadPageGuard(ReadPageGuard &&that) noexcept : guard_(std::move(that.guard_)){};
 
 auto ReadPageGuard::operator=(ReadPageGuard &&that) noexcept -> ReadPageGuard & {
+  if (guard_.page_ != nullptr) {
+    Drop();
+  }
   guard_ = std::move(that.guard_);
   return *this;
 }
 
-void ReadPageGuard::Drop() { guard_.Drop(); }
+auto ReadPageGuard::PageId() const -> page_id_t {
+  if (guard_.page_ == nullptr) {
+    return INVALID_PAGE_ID;
+  }
+  return guard_.PageId();
+}
 
-ReadPageGuard::~ReadPageGuard() {}  // NOLINT
+void ReadPageGuard::Drop() {
+  guard_.page_->RUnlatch();
+  guard_.Drop();
+}
+
+ReadPageGuard::~ReadPageGuard() {
+  if (guard_.page_ != nullptr) {
+    Drop();
+  }
+}  // NOLINT
+
+WritePageGuard::WritePageGuard(BufferPoolManager *bpm, Page *page) : guard_(bpm, page) {
+  if (page != nullptr) {
+    page->WLatch();
+  }
+}
 
 WritePageGuard::WritePageGuard(WritePageGuard &&that) noexcept : guard_(std::move(that.guard_)){};
 
 auto WritePageGuard::operator=(WritePageGuard &&that) noexcept -> WritePageGuard & {
+  if (guard_.page_ != nullptr) {
+    Drop();
+  }
   guard_ = std::move(that.guard_);
   return *this;
 }
 
-void WritePageGuard::Drop() { guard_.Drop(); }
+void WritePageGuard::Drop() {
+  guard_.page_->WUnlatch();
+  guard_.Drop();
+}
 
-WritePageGuard::~WritePageGuard() {}  // NOLINT
+WritePageGuard::~WritePageGuard() {
+  if (guard_.page_ != nullptr) {
+    Drop();
+  }
+}  // NOLINT
 
 }  // namespace bustub
